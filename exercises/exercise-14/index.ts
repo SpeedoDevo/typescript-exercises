@@ -1,6 +1,6 @@
-import {Database} from './database';
-import * as path from 'path';
-import {expect} from 'chai';
+import { expect } from "chai";
+import * as path from "path";
+import { Database } from "./database";
 
 /*
 
@@ -57,60 +57,83 @@ Run:
 */
 
 interface User {
-    _id: number;
-    name: string;
-    age: number;
-    occupation: string;
-    registered: string;
+  _id: number;
+  name: string;
+  age: number;
+  occupation: string;
+  registered: string;
 }
 
 interface Admin {
-    _id: number;
-    name: string;
-    age: number;
-    role: string;
-    registered: string;
+  _id: number;
+  name: string;
+  age: number;
+  role: string;
+  registered: string;
 }
 
 async function testUsersDatabase() {
-    const usersDatabase = new Database<User>(path.join(__dirname, 'users.txt'), ['name', 'occupation']);
+  const usersDatabase = new Database<User>(path.join(__dirname, "users.txt"), [
+    "name",
+    "occupation",
+  ]);
 
-    expect(await usersDatabase.find({age: {$eq: 31}, name: {$eq: 'Inspector Gadget'}}, {projection: {occupation: 1}}))
-        .to.eql([{occupation: 'Undercover'}]);
-    expect(await usersDatabase.find({}, {projection: {name: 1, occupation: 1}, sort: {_id: 1}}))
-        .to.eql([
-            {"name": "Max Mustermann", "occupation": "Chimney sweep"},
-            {"name": "Kate Müller", "occupation": "Astronaut"},
-            {"name": "Moses", "occupation": "Desert guide"},
-            {"name": "Superman", "occupation": "Ordinary person"},
-            {"name": "Inspector Gadget", "occupation": "Undercover"},
-            {"name": "Genius", "occupation": "Magical entity"},
-            {"name": "Max Pax", "occupation": "SC2 Expert"},
-            {"name": "Maximum Impact", "occupation": "Magical entity"}
-        ]);
-    expect((await usersDatabase.find({age: {$gt: 30}}, {sort: {age: 1}})).map(({_id}) => _id)).to.eql([5, 6, 3, 8]);
+  expect(
+    await usersDatabase.find(
+      { age: { $eq: 31 }, name: { $eq: "Inspector Gadget" } },
+      { projection: { occupation: 1 } }
+    )
+  ).to.eql([{ occupation: "Undercover" }]);
+  expect(
+    await usersDatabase.find(
+      {},
+      { projection: { name: 1, occupation: 1 }, sort: { _id: 1 } }
+    )
+  ).to.eql([
+    { name: "Max Mustermann", occupation: "Chimney sweep" },
+    { name: "Kate Müller", occupation: "Astronaut" },
+    { name: "Moses", occupation: "Desert guide" },
+    { name: "Superman", occupation: "Ordinary person" },
+    { name: "Inspector Gadget", occupation: "Undercover" },
+    { name: "Genius", occupation: "Magical entity" },
+    { name: "Max Pax", occupation: "SC2 Expert" },
+    { name: "Maximum Impact", occupation: "Magical entity" },
+  ]);
+  expect(
+    (await usersDatabase.find({ age: { $gt: 30 } }, { sort: { age: 1 } })).map(
+      ({ _id }) => _id
+    )
+  ).to.eql([5, 6, 3, 8]);
 }
 
 async function testAdminsDatabase() {
-    const adminsDatabase = new Database<Admin>(path.join(__dirname, 'admins.txt'), ['name', 'role']);
+  const adminsDatabase = new Database<Admin>(
+    path.join(__dirname, "admins.txt"),
+    ["name", "role"]
+  );
 
-    expect((await adminsDatabase.find({role: {$eq: 'Administrator'}}, {projection: {name: 1, role: 1}})))
-        .to.have.same.deep.members([
-            {name: 'Jane Doe', role: 'Administrator'},
-            {name: 'Will Smith', role: 'Administrator'}
-        ]);
-    expect(await adminsDatabase.find({age: {$gt: 40}}, {projection: {name: 1}, sort: {age: 1}}))
-        .to.have.same.deep.members([
-            {"name": "Will Smith"},
-            {"name": "Bill Gates"},
-            {"name": "Bruce Willis"}
-        ]);
+  expect(
+    await adminsDatabase.find(
+      { role: { $eq: "Administrator" } },
+      { projection: { name: 1, role: 1 } }
+    )
+  ).to.have.same.deep.members([
+    { name: "Jane Doe", role: "Administrator" },
+    { name: "Will Smith", role: "Administrator" },
+  ]);
+  expect(
+    await adminsDatabase.find(
+      { age: { $gt: 40 } },
+      { projection: { name: 1 }, sort: { age: 1 } }
+    )
+  ).to.have.same.deep.members([
+    { name: "Will Smith" },
+    { name: "Bill Gates" },
+    { name: "Bruce Willis" },
+  ]);
 }
 
-Promise.all([
-    testUsersDatabase(),
-    testAdminsDatabase()
-]).then(
-    () => console.log('All tests have succeeded, congratulations!'),
-    (e) => console.error(e.stack)
+Promise.all([testUsersDatabase(), testAdminsDatabase()]).then(
+  () => console.log("All tests have succeeded, congratulations!"),
+  (e) => console.error(e.stack)
 );
